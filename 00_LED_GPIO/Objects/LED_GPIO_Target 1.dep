@@ -1,0 +1,13 @@
+Dependencies for Project 'LED_GPIO', Target 'Target 1': (DO NOT MODIFY !)
+F (.\User\main.c)(0x65AD4364)(-c --cpu Cortex-M3 -D__EVAL -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I .\Lib\CMSIS\Device\ST\STM32F1xx\Include -I .\Lib\CMSIS\Include-I.\RTE\_Target_1-ID:\ApplicationProgram\Keil\core\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-ID:\ApplicationProgram\Keil\core\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DSTM32F10X_HD -DSTM32F103xE-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+I (D:\ApplicationProgram\Keil\core\ARM\ARMCC\include\stdio.h)(0x599EDB3C)
+F (.\Lib\CMSIS\Device\ST\STM32F1xx\Source\Templates\system_stm32f1xx.c)(0x591B03C0)(-c --cpu Cortex-M3 -D__EVAL -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I .\Lib\CMSIS\Device\ST\STM32F1xx\Include -I .\Lib\CMSIS\Include-I.\RTE\_Target_1-ID:\ApplicationProgram\Keil\core\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-ID:\ApplicationProgram\Keil\core\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DSTM32F10X_HD -DSTM32F103xE-o .\objects\system_stm32f1xx.o --omf_browse .\objects\system_stm32f1xx.crf --depend .\objects\system_stm32f1xx.d)
+I (.\Lib\CMSIS\Device\ST\STM32F1xx\Include\stm32f1xx.h)(0x591B03C6)
+I (.\Lib\CMSIS\Device\ST\STM32F1xx\Include\stm32f103xe.h)(0x591B03C6)
+I (.\Lib\CMSIS\Include\core_cm3.h)(0x591B0354)
+I (D:\ApplicationProgram\Keil\core\ARM\ARMCC\include\stdint.h)(0x599EDB3E)
+I (.\Lib\CMSIS\Include\core_cmInstr.h)(0x591B0354)
+I (.\Lib\CMSIS\Include\cmsis_armcc.h)(0x591B0354)
+I (.\Lib\CMSIS\Include\core_cmFunc.h)(0x591B0354)
+I (.\Lib\CMSIS\Device\ST\STM32F1xx\Include\system_stm32f1xx.h)(0x591B03C6)
+F (.\Lib\CMSIS\Device\ST\STM32F1xx\Source\Templates\arm\startup_stm32f103xe.s)(0x591B03C0)(--cpu Cortex-M3 --pd "__EVAL SETA 1" -g --apcs=interwork --pd "__MICROLIB SETA 1"-I.\RTE\_Target_1-ID:\ApplicationProgram\Keil\core\ARM\PACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include-ID:\ApplicationProgram\Keil\core\ARM\CMSIS\Include--pd "__UVISION_VERSION SETA 526" --pd "STM32F10X_HD SETA 1"--list .\listings\startup_stm32f103xe.lst --xref -o .\objects\startup_stm32f103xe.o --depend .\objects\startup_stm32f103xe.d)

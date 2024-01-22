@@ -1,0 +1,9 @@
+.\objects\system_stm32f1xx.o: Lib\CMSIS\Device\ST\STM32F1xx\Source\Templates\system_stm32f1xx.c
+.\objects\system_stm32f1xx.o: .\Lib\CMSIS\Device\ST\STM32F1xx\Include\stm32f1xx.h
+.\objects\system_stm32f1xx.o: .\Lib\CMSIS\Device\ST\STM32F1xx\Include\stm32f103xe.h
+.\objects\system_stm32f1xx.o: .\Lib\CMSIS\Include\core_cm3.h
+.\objects\system_stm32f1xx.o: D:\ApplicationProgram\Keil\core\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\system_stm32f1xx.o: .\Lib\CMSIS\Include\core_cmInstr.h
+.\objects\system_stm32f1xx.o: .\Lib\CMSIS\Include\cmsis_armcc.h
+.\objects\system_stm32f1xx.o: .\Lib\CMSIS\Include\core_cmFunc.h
+.\objects\system_stm32f1xx.o: .\Lib\CMSIS\Device\ST\STM32F1xx\Include\system_stm32f1xx.h
