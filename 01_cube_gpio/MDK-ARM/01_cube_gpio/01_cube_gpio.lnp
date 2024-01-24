@@ -1,0 +1,24 @@
+--cpu Cortex-M3
+"01_cube_gpio\startup_stm32f103xe.o"
+"01_cube_gpio\main.o"
+"01_cube_gpio\gpio.o"
+"01_cube_gpio\stm32f1xx_it.o"
+"01_cube_gpio\stm32f1xx_hal_msp.o"
+"01_cube_gpio\stm32f1xx_hal_gpio_ex.o"
+"01_cube_gpio\stm32f1xx_hal_tim.o"
+"01_cube_gpio\stm32f1xx_hal_tim_ex.o"
+"01_cube_gpio\stm32f1xx_hal.o"
+"01_cube_gpio\stm32f1xx_hal_rcc.o"
+"01_cube_gpio\stm32f1xx_hal_rcc_ex.o"
+"01_cube_gpio\stm32f1xx_hal_gpio.o"
+"01_cube_gpio\stm32f1xx_hal_dma.o"
+"01_cube_gpio\stm32f1xx_hal_cortex.o"
+"01_cube_gpio\stm32f1xx_hal_pwr.o"
+"01_cube_gpio\stm32f1xx_hal_flash.o"
+"01_cube_gpio\stm32f1xx_hal_flash_ex.o"
+"01_cube_gpio\stm32f1xx_hal_exti.o"
+"01_cube_gpio\system_stm32f1xx.o"
+--strict --scatter "01_cube_gpio\01_cube_gpio.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "01_cube_gpio.map" -o 01_cube_gpio\01_cube_gpio.axf

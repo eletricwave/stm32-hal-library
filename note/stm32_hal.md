@@ -89,3 +89,23 @@ int main(void){
 }
 
 ```
+
+####  <font color="red"> 2, 使用CubeMX 配置stm32 hal库 </font>
+
+##### 根据电路图将GPIOB0, GPIOB1, GPIOB5 配置成输出模式
+> 1， 选择对应的引脚配置成输出即可
+> 2， 然后在左侧System Core 里面的GPIO 中配置对应的GPIO选项
+> ![Alt text](image-11.png)
+
+##### 配置debug选项， 
+> ![Alt text](image-12.png)
+
+##### 配置Object 选项
+> ![Alt text](image-13.png)
+
+##### 配置 Code Generator
+> ![Alt text](image-15.png)
+
+##### 生成 && 打开项目
+> ![Alt text](image-14.png)
+
