@@ -338,3 +338,42 @@ if (KEY_PRESS == SCAN_KEY2){
 
 > 最后main函数记得初始化key
 > ![Alt text](image-19.png)
+
+<br/>
+
+####  <font color="red"> 4, STM32启动流程 </font>
+
+> 1， 芯片上电以后会触发复位异常
+
+> 2， 触发复位异常后会跳转到终端向量表中寻找复位异常
+
+> 3, 找到复位异常的位置， 根据指令做相应的操作
+
+##### 大概流程
+触发异常--》 中断向量表 --》 用户程序
+
+> 启动会具体中断向量表位置根据Boot0 和 Boot1来选择
+> ![Alt text](image-21.png)
+
+> 映射方式
+> ![Alt text](image-20.png)
+
+> 启动文件流程
+> ![Alt text](image-22.png)
+> * 1， 设置堆栈指针
+> * 2， 设置PC指针的值
+> * 3， 设置中断向量表
+> * 4， 配置系统时钟
+> * 5， 调用__main 初始化堆栈的工作， 最终跳转到自己写的main函数
+
+> 1 初始化堆栈指针
+> ![Alt text](image-24.png) 
+
+> 2 上电异常
+> ![Alt text](image-23.png)
+
+> 3 上电异常处理 (跳转到main函数 和 执行系统时钟初始化)
+> ![Alt text](image-25.png)
+
+> 以下中断触发时也会掉中断向量表中的函数
+> ![Alt text](image-26.png)
