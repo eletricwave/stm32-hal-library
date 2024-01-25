@@ -2,6 +2,7 @@
 "02_build_bsp\startup_stm32f103xe.o"
 "02_build_bsp\bsp_led.o"
 "02_build_bsp\application.o"
+"02_build_bsp\bsp_key.o"
 "02_build_bsp\main.o"
 "02_build_bsp\gpio.o"
 "02_build_bsp\stm32f1xx_it.o"

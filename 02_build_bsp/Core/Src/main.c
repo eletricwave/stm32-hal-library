@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bsp_led.h"
+#include "bsp_key.h"
 #include "application.h"
 /* USER CODE END Includes */
 
@@ -88,6 +89,7 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
 	LED_Init();
+	KEY_Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */

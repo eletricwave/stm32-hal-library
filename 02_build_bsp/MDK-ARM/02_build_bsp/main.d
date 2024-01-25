@@ -27,4 +27,5 @@
 02_build_bsp\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
 02_build_bsp\main.o: ../Core/Inc/gpio.h
 02_build_bsp\main.o: ..\User\inc\bsp_led.h
+02_build_bsp\main.o: ..\User\inc\bsp_key.h
 02_build_bsp\main.o: ..\User\inc\application.h

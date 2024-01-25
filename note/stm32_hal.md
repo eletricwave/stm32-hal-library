@@ -254,3 +254,87 @@ void set_cur_mode(int);
 > main 函数调用
 > ![Alt text](image-17.png)
 
+> 按键原理图
+> ![Alt text](image-18.png)
+
+> bsp_key.c
+```C
+#include "bsp_key.h"
+#include "stm32f1xx.h"
+#include "stm32f1xx_hal_gpio.h"
+
+void KEY_Init(void){
+	GPIO_InitTypeDef KEY_INIT_STRUCT;
+	
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOC_CLK_ENABLE();
+	
+	KEY_INIT_STRUCT.Mode 	= GPIO_MODE_INPUT;
+	KEY_INIT_STRUCT.Pin		= KEY1_PIN;
+	KEY_INIT_STRUCT.Pull	= GPIO_PULLDOWN;
+	KEY_INIT_STRUCT.Speed	= GPIO_SPEED_FREQ_HIGH;
+	
+	HAL_GPIO_Init(KEY1_PORT, &KEY_INIT_STRUCT);
+	KEY_INIT_STRUCT.Pin 	= KEY2_PIN;
+	HAL_GPIO_Init(KEY2_PORT, &KEY_INIT_STRUCT);
+}
+
+KEY_Status Scan_Key(GPIO_TypeDef* GPIOx, uint16_t GPIO_PIN_x){
+	if (KEY_PRESS == HAL_GPIO_ReadPin(GPIOx, GPIO_PIN_x)){
+		HAL_Delay(20);
+		if (KEY_PRESS == HAL_GPIO_ReadPin(GPIOx, GPIO_PIN_x)){
+			while (KEY_PRESS == HAL_GPIO_ReadPin(GPIOx, GPIO_PIN_x));
+			return KEY_PRESS;
+		}
+	}
+	
+	return KEY_RELEASE;
+}
+```
+
+> bsp_led.h
+```C
+#ifndef __BSP_KEY_H__
+#define __BSP_KEY_H__
+
+#include "stm32f1xx.h"
+
+#define KEY1_PORT 	GPIOA
+#define KEY1_PIN	GPIO_PIN_0
+
+#define KEY2_PORT 	GPIOC
+#define KEY2_PIN 	GPIO_PIN_13
+
+#define SCAN_KEY1	Scan_Key(KEY1_PORT, KEY1_PIN)
+#define SCAN_KEY2	Scan_Key(KEY2_PORT, KEY2_PIN)
+
+typedef enum{
+	KEY_RELEASE = 0U,
+	KEY_PRESS,
+}KEY_Status;
+
+
+void KEY_Init(void);
+KEY_Status Scan_Key(GPIO_TypeDef*, uint16_t);
+
+#endif /* __BSP_KEY_H__ */
+```
+
+> 使用key控制app中的模式
+```C
+if (KEY_PRESS == SCAN_KEY1){
+	if (++cur_mode == 5)
+		cur_mode = 1;
+	close_all_led();
+	continue;
+}
+if (KEY_PRESS == SCAN_KEY2){
+	if (--cur_mode == 0)
+		cur_mode = 4;
+	close_all_led();
+	continue;
+}
+```
+
+> 最后main函数记得初始化key
+> ![Alt text](image-19.png)
