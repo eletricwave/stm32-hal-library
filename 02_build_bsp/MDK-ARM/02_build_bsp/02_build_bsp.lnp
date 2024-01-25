@@ -1,0 +1,26 @@
+--cpu Cortex-M3
+"02_build_bsp\startup_stm32f103xe.o"
+"02_build_bsp\bsp_led.o"
+"02_build_bsp\application.o"
+"02_build_bsp\main.o"
+"02_build_bsp\gpio.o"
+"02_build_bsp\stm32f1xx_it.o"
+"02_build_bsp\stm32f1xx_hal_msp.o"
+"02_build_bsp\stm32f1xx_hal_gpio_ex.o"
+"02_build_bsp\stm32f1xx_hal_tim.o"
+"02_build_bsp\stm32f1xx_hal_tim_ex.o"
+"02_build_bsp\stm32f1xx_hal.o"
+"02_build_bsp\stm32f1xx_hal_rcc.o"
+"02_build_bsp\stm32f1xx_hal_rcc_ex.o"
+"02_build_bsp\stm32f1xx_hal_gpio.o"
+"02_build_bsp\stm32f1xx_hal_dma.o"
+"02_build_bsp\stm32f1xx_hal_cortex.o"
+"02_build_bsp\stm32f1xx_hal_pwr.o"
+"02_build_bsp\stm32f1xx_hal_flash.o"
+"02_build_bsp\stm32f1xx_hal_flash_ex.o"
+"02_build_bsp\stm32f1xx_hal_exti.o"
+"02_build_bsp\system_stm32f1xx.o"
+--strict --scatter "02_build_bsp\02_build_bsp.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "02_build_bsp.map" -o 02_build_bsp\02_build_bsp.axf

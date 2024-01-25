@@ -109,3 +109,148 @@ int main(void){
 ##### 生成 && 打开项目
 > ![Alt text](image-14.png)
 
+<br/>
+
+####  <font color="red"> 3, 板级支持包 </font>
+
+##### 板级支持包概述
+> 起到承上启下的作用
+![Alt text](image-16.png)
+
+##### 1， LED 板级支持包构建
+> bsp_led.c
+```C
+#include "bsp_led.h"
+
+#include "stm32f1xx.h"
+#include "stm32f1xx_hal_gpio.h"
+
+void LED_Init(void){
+	GPIO_InitTypeDef LED_INIT_STRUCT;
+	
+	__HAL_RCC_GPIOB_CLK_ENABLE();
+	
+	LED_INIT_STRUCT.Mode 	= GPIO_MODE_OUTPUT_PP;
+	LED_INIT_STRUCT.Pin 	= LED_PIN;
+	LED_INIT_STRUCT.Pull	= GPIO_NOPULL;
+	LED_INIT_STRUCT.Speed	= GPIO_SPEED_FREQ_LOW;
+	
+	HAL_GPIO_Init(LED_PORT, &LED_INIT_STRUCT);
+}
+```
+
+> bsp_led.h
+```C
+#ifndef __BSP_LED_H__
+#define __BSP_LED_H__
+
+#define LED_PORT 	GPIOB
+#define LED_PIN		(GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_5)
+
+#define LED_R_ON		do { HAL_GPIO_WritePin(LED_PORT, GPIO_PIN_5, GPIO_PIN_RESET); } while(0)
+#define LED_R_OFF		do { HAL_GPIO_WritePin(LED_PORT, GPIO_PIN_5, GPIO_PIN_SET); } while(0)
+#define LED_R_TOGGLE	do { HAL_GPIO_TogglePin(LED_PORT, GPIO_PIN_5); } while(0)
+
+#define LED_G_ON		do { HAL_GPIO_WritePin(LED_PORT, GPIO_PIN_0, GPIO_PIN_RESET); } while(0)
+#define LED_G_OFF		do { HAL_GPIO_WritePin(LED_PORT, GPIO_PIN_0, GPIO_PIN_SET); } while(0)
+#define LED_G_TOGGLE	do { HAL_GPIO_TogglePin(LED_PORT, GPIO_PIN_0); } while(0)
+
+#define LED_B_ON		do { HAL_GPIO_WritePin(LED_PORT, GPIO_PIN_1, GPIO_PIN_RESET); } while(0)
+#define LED_B_OFF		do { HAL_GPIO_WritePin(LED_PORT, GPIO_PIN_1, GPIO_PIN_SET); } while(0)
+#define LED_B_TOGGLE	do { HAL_GPIO_TogglePin(LED_PORT, GPIO_PIN_1); } while(0)
+
+void LED_Init(void); 
+
+#endif /* __BSP_LED_H__ */
+```
+
+> application.c
+```C
+#include "stm32f1xx.h"
+#include "bsp_led.h"
+#include "application.h"
+
+static int cur_mode = 1;
+
+void set_cur_mode(int mode){
+	cur_mode = mode;
+}
+
+int get_cur_mode(void){
+	return cur_mode;
+}
+
+void app_loop(void){
+	int cnt = 1;
+	LED_R_OFF;
+	LED_G_OFF;
+	LED_B_OFF;
+	while (1){
+		switch (cur_mode){
+			case 1:{
+				LED_R_ON;
+				HAL_Delay(500);
+				LED_R_OFF;
+				HAL_Delay(500);
+			}
+			break;
+			
+			case 2:{
+				LED_G_ON;
+				HAL_Delay(500);
+				LED_G_OFF;
+				HAL_Delay(500);
+			}
+			break;
+			
+			case 3:{
+				LED_B_ON;
+				HAL_Delay(500);
+				LED_B_OFF;
+				HAL_Delay(500);
+			}
+			break;
+			
+			case 4:{
+				LED_R_ON;
+				HAL_Delay(500);
+				LED_R_OFF;
+				LED_G_ON;
+				HAL_Delay(500);
+				LED_G_OFF;
+				LED_B_ON;
+				HAL_Delay(500);
+				LED_B_OFF;
+			}
+			break;
+
+			default: {
+				LED_R_OFF;
+				LED_G_OFF;
+				LED_B_OFF;
+			}
+			break;
+		}
+		
+		if (++cnt == 10){
+			cnt = 0;
+			cur_mode = (cur_mode + 1) % 5 + 1;
+		}
+	}
+}
+```
+> application.h
+```C
+#ifndef __APPLICATION_H__
+#define __APPLICATION_H__
+
+void app_loop(void);
+int get_cur_mode(void);
+void set_cur_mode(int);
+
+#endif /* __APPLICATION_H__ */
+```
+
+> main 函数调用
+> ![Alt text](image-17.png)
+
