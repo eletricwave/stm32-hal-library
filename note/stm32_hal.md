@@ -377,3 +377,61 @@ if (KEY_PRESS == SCAN_KEY2){
 
 > 以下中断触发时也会掉中断向量表中的函数
 > ![Alt text](image-26.png)
+
+
+####  <font color="red"> 5 RCC 复位和时钟控制 </font>
+
+##### STM32复位功能
+> ![Alt text](image-27.png)
+
+> 1, 系统复位
+> ![Alt text](image-28.png)
+
+> 电路中的复位
+> ![Alt text](image-29.png)
+
+##### STM32 时钟选择
+> 由晶振产生的高速外部时钟
+> ![Alt text](image-30.png)
+
+> 根据cubeMX 自动生成的时钟树
+> ![Alt text](image-31.png)
+> 对于STM32上的时钟， 具体怎么配置， 根据需求决定， 时钟频率越高功耗也会越高
+
+> 根据时钟树配置出来的具体代码如下
+```C
+void SystemClock_Config(void)
+{
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Initializes the CPU, AHB and APB buses clocks
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+```
