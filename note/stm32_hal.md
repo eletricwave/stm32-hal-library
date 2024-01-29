@@ -435,3 +435,119 @@ void SystemClock_Config(void)
   }
 }
 ```
+
+####  <font color="red"> 6 中断 </font>
+##### 1 什么是中断
+![Alt text](image-32.png)
+
+##### 2 抢占优先级组和子优先组
+![Alt text](image-33.png)
+
+##### 3 NVIC库函数
+![Alt text](image-34.png)
+
+##### 4 cubeMX 配置
+> 1, 
+> ![Alt text](image-35.png)
+> 2, 
+> ![Alt text](image-36.png)
+> 3, 
+> ![Alt text](image-37.png)
+> 4, 生成的代码
+```C
+void MX_GPIO_Init(void)
+{
+
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  /*Configure GPIO pin : PC13 */
+  GPIO_InitStruct.Pin = GPIO_PIN_13;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 1, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
+}
+```
+##### bsp包
+> bsp_exit.h
+```C
+#ifndef __BSP_EXIT_H__
+#define __BSP_EXIT_H__
+
+#define KEY1_EXIT_PORT		GPIOA
+#define KEY1_EXIT_PIN		GPIO_PIN_0
+#define KEY1_EXIT_MODE		GPIO_MODE_IT_RISING
+#define KEY1_EXIT_IRQ		EXTI0_IRQn
+#define KEY1_EXIT_PULL		GPIO_NOPULL
+
+#define KEY2_EXIT_PORT		GPIOC
+#define KEY2_EXIT_PIN		GPIO_PIN_13
+#define KEY2_EXIT_MODE		GPIO_MODE_IT_RISING
+#define KEY2_EXIT_IRQ		EXTI15_10_IRQn
+#define KEY2_EXIT_PULL		GPIO_NOPULL
+
+
+void KEY1_EXIT_INIT(void);
+void KEY2_EXIT_INIT(void);
+
+#endif /* __BSP_EXIT_H__ */
+```
+
+> bsp_exit.h
+```C
+#include "stm32f1xx.h"
+#include "bsp_exit.h"
+
+void KEY1_EXIT_INIT(void){
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+	
+	GPIO_InitTypeDef EXIT_Struct = {0};
+	EXIT_Struct.Pin 	= KEY1_EXIT_PIN;
+	EXIT_Struct.Mode 	= KEY1_EXIT_MODE;
+	EXIT_Struct.Pull	= KEY1_EXIT_PULL;
+	
+	HAL_GPIO_Init(KEY1_EXIT_PORT, &EXIT_Struct);
+	
+	HAL_NVIC_SetPriority(KEY1_EXIT_IRQ, 1, 0);
+	HAL_NVIC_EnableIRQ(KEY1_EXIT_IRQ);
+}
+
+void KEY2_EXIT_INIT(void){
+	__HAL_RCC_GPIOC_CLK_ENABLE();
+	
+	GPIO_InitTypeDef EXIT_Struct = {0};
+	EXIT_Struct.Pin 	= KEY2_EXIT_PIN;
+	EXIT_Struct.Mode 	= KEY2_EXIT_MODE;
+	EXIT_Struct.Pull	= KEY2_EXIT_PULL;
+	
+	HAL_GPIO_Init(KEY2_EXIT_PORT, &EXIT_Struct);
+	
+	HAL_NVIC_SetPriority(KEY2_EXIT_IRQ, 1, 0);
+	HAL_NVIC_EnableIRQ(KEY2_EXIT_IRQ);
+}
+```
+
+> 编写回调函数
+```C
+void EXTI0_IRQHandler(void){
+	if (__HAL_GPIO_EXTI_GET_IT(KEY1_EXIT_PIN) != GPIO_PIN_RESET){
+		LED_B_TOGGLE;
+		__HAL_GPIO_EXTI_CLEAR_IT(KEY1_EXIT_PIN);
+	}
+}
+
+void EXTI15_10_IRQHandler(void){
+	if (__HAL_GPIO_EXTI_GET_IT(KEY2_EXIT_PIN) != GPIO_PIN_RESET){
+		LED_G_TOGGLE;
+		__HAL_GPIO_EXTI_CLEAR_IT(KEY2_EXIT_PIN);
+	}
+}
+```

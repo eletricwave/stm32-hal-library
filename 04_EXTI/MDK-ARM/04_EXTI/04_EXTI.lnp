@@ -1,0 +1,26 @@
+--cpu Cortex-M3
+"04_exti\startup_stm32f103xe.o"
+"04_exti\bsp_exit.o"
+"04_exti\bsp_led.o"
+"04_exti\main.o"
+"04_exti\gpio.o"
+"04_exti\stm32f1xx_it.o"
+"04_exti\stm32f1xx_hal_msp.o"
+"04_exti\stm32f1xx_hal_gpio_ex.o"
+"04_exti\stm32f1xx_hal_tim.o"
+"04_exti\stm32f1xx_hal_tim_ex.o"
+"04_exti\stm32f1xx_hal.o"
+"04_exti\stm32f1xx_hal_rcc.o"
+"04_exti\stm32f1xx_hal_rcc_ex.o"
+"04_exti\stm32f1xx_hal_gpio.o"
+"04_exti\stm32f1xx_hal_dma.o"
+"04_exti\stm32f1xx_hal_cortex.o"
+"04_exti\stm32f1xx_hal_pwr.o"
+"04_exti\stm32f1xx_hal_flash.o"
+"04_exti\stm32f1xx_hal_flash_ex.o"
+"04_exti\stm32f1xx_hal_exti.o"
+"04_exti\system_stm32f1xx.o"
+--strict --scatter "04_EXTI\04_EXTI.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "04_EXTI.map" -o 04_EXTI\04_EXTI.axf
