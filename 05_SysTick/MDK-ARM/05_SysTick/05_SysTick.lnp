@@ -1,0 +1,26 @@
+--cpu Cortex-M3
+"05_systick\startup_stm32f103xe.o"
+"05_systick\bsp_led.o"
+"05_systick\bsp_systick.o"
+"05_systick\main.o"
+"05_systick\gpio.o"
+"05_systick\stm32f1xx_it.o"
+"05_systick\stm32f1xx_hal_msp.o"
+"05_systick\stm32f1xx_hal_gpio_ex.o"
+"05_systick\stm32f1xx_hal_tim.o"
+"05_systick\stm32f1xx_hal_tim_ex.o"
+"05_systick\stm32f1xx_hal.o"
+"05_systick\stm32f1xx_hal_rcc.o"
+"05_systick\stm32f1xx_hal_rcc_ex.o"
+"05_systick\stm32f1xx_hal_gpio.o"
+"05_systick\stm32f1xx_hal_dma.o"
+"05_systick\stm32f1xx_hal_cortex.o"
+"05_systick\stm32f1xx_hal_pwr.o"
+"05_systick\stm32f1xx_hal_flash.o"
+"05_systick\stm32f1xx_hal_flash_ex.o"
+"05_systick\stm32f1xx_hal_exti.o"
+"05_systick\system_stm32f1xx.o"
+--strict --scatter "05_SysTick\05_SysTick.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "05_SysTick.map" -o 05_SysTick\05_SysTick.axf

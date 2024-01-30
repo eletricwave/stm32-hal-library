@@ -551,3 +551,96 @@ void EXTI15_10_IRQHandler(void){
 	}
 }
 ```
+
+####  <font color="red"> 7 SysTick 定时器 </font>
+
+##### 1， cubeMX 配置
+> 时基配置 （根据需求配置， 一般SysTick即可）
+> ![Alt text](image-38.png)
+> 具体频率为
+> ![Alt text](image-39.png)
+
+> bsp_systick.h
+``` C
+#ifndef __BSP_SYSTICK_H__
+#define __BSP_SYSTICK_H__
+
+void sysTick_Init(void);
+void decrease_current_time(void);
+void delay_ms(unsigned int);
+void delay_us(unsigned int);
+
+#endif /* __BSP_SYSTICK_H__ */
+```
+
+> bsp_systick.c
+```C
+#include "bsp_systick.h"
+#include "stm32f1xx.h"
+
+static volatile unsigned long CurDelayTime = 0;
+
+void sysTick_Init(void){
+	while(HAL_SYSTICK_Config(SystemCoreClock / 1000000));  // per 1us a interrupt
+}
+
+void decrease_current_time(void){
+	if(CurDelayTime)
+		--CurDelayTime;
+}
+
+void delay_ms(unsigned int t){
+	CurDelayTime = t * 1000;
+	while (CurDelayTime);
+}
+
+void delay_us(unsigned int t){
+	CurDelayTime = t;
+	while (CurDelayTime);
+}
+```
+
+> 在系统滴答定时器中断中添加代码
+```C
+void SysTick_Handler(void)
+{
+  /* USER CODE BEGIN SysTick_IRQn 0 */
+
+  /* USER CODE END SysTick_IRQn 0 */
+  	HAL_IncTick();   //原来就有的
+  /* USER CODE BEGIN SysTick_IRQn 1 */
+	decrease_current_time();		// per 1 interrupt decrease CurDelayTime 1
+  /* USER CODE END SysTick_IRQn 1 */
+}
+```
+
+> 主函数的使用
+```C
+int main(void)
+{
+	HAL_Init();
+	SystemClock_Config();
+	MX_GPIO_Init();
+
+	LED_Init();		//灯初始化
+	sysTick_Init(); // 设置重载值
+
+  while (1)
+  {
+	  
+	  delay_ms(1000);
+	  LED_B_OFF;
+	  delay_ms(1000);
+	  LED_R_OFF;
+	  delay_ms(1000);
+	  LED_G_OFF;
+	  
+	  delay_ms(1000);
+	  LED_B_ON;
+	  delay_ms(1000);
+	  LED_R_ON;
+	  delay_ms(1000);
+	  LED_G_ON;
+  }
+}
+```
