@@ -644,3 +644,8 @@ int main(void)
   }
 }
 ```
+
+####  <font color="red"> 8 debug的使用 </font>
+> 环境配置
+> ![Alt text](image-40.png)
+> ![Alt text](image-41.png)
