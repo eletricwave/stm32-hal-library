@@ -649,3 +649,130 @@ int main(void)
 > 环境配置
 > ![Alt text](image-40.png)
 > ![Alt text](image-41.png)
+
+####  <font color="red"> 9 usart </font>
+##### 1, 协议层
+> 传输数据
+> ![Alt text](image-42.png)
+
+> 组成框图
+> ![Alt text](image-43.png)
+
+##### 2， 初始化流程
+![Alt text](image-44.png)
+
+##### 3, 代码
+> bsp_uart.h
+```C
+#ifndef __BSP_UART_H__
+#define __BSP_UART_H__
+
+#include <stdio.h>
+#include "stm32f1xx.h"
+
+#define UART_INSTANCE		USART1
+#define UART_BAUD			115200
+
+#define UART_CLK_ENABLE()		__HAL_RCC_USART1_CLK_ENABLE()
+#define UART_TX_CLK_ENABLE()	__HAL_RCC_GPIOA_CLK_ENABLE()
+#define UART_RX_CLK_ENABLE()	__HAL_RCC_GPIOA_CLK_ENABLE()
+
+#define UART_TX_PIN			GPIO_PIN_9
+#define UART_RX_PIN			GPIO_PIN_10
+
+#define UART_TX_PORT		GPIOA
+#define UART_RX_PORT		GPIOA
+
+#define UART_IQR			USART1_IRQn
+
+
+void UART_Init(void);
+void UART_SendStr(unsigned char *);
+int fputc(int ch, FILE *f);
+int fgetc(FILE *f);
+
+#endif /* __BSP_UART_H__ */
+```
+
+> bsp_uart.c
+```C
+#include "stm32f1xx.h"
+#include "bsp_uart.h"
+#include <string.h>
+#include <stdio.h>
+#include "bsp_led.h"
+
+UART_HandleTypeDef UART_Handle;
+
+void UART_Init(void){
+	UART_Handle.Instance		= UART_INSTANCE;
+	
+	UART_Handle.Init.BaudRate 	= UART_BAUD;
+	UART_Handle.Init.WordLength = UART_WORDLENGTH_8B;
+	UART_Handle.Init.Parity		= UART_PARITY_NONE;
+	UART_Handle.Init.StopBits	= UART_STOPBITS_1;
+	UART_Handle.Init.Mode		= UART_MODE_TX_RX;
+	UART_Handle.Init.HwFlowCtl	= UART_HWCONTROL_NONE;
+	
+	HAL_UART_Init(&UART_Handle);
+	__HAL_UART_ENABLE_IT(&UART_Handle, UART_IT_RXNE);
+}
+
+void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle){
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+	if (uartHandle->Instance == UART_INSTANCE){
+		// enable clock
+		UART_CLK_ENABLE();
+		UART_TX_CLK_ENABLE();
+		UART_RX_CLK_ENABLE();
+		
+		// init gpio
+		GPIO_InitStruct.Pin 	= UART_TX_PIN;
+		GPIO_InitStruct.Mode 	= GPIO_MODE_AF_PP;
+		GPIO_InitStruct.Speed 	= GPIO_SPEED_FREQ_HIGH;
+		GPIO_InitStruct.Pull	= GPIO_PULLUP;
+		HAL_GPIO_Init(UART_TX_PORT, &GPIO_InitStruct);
+		
+		GPIO_InitStruct.Pin		= UART_RX_PIN;
+		GPIO_InitStruct.Mode	= GPIO_MODE_AF_INPUT;
+		HAL_GPIO_Init(UART_RX_PORT, &GPIO_InitStruct);
+		
+		HAL_NVIC_SetPriority(UART_IQR, 0, 0);
+		HAL_NVIC_EnableIRQ(UART_IQR);
+	}
+
+}
+
+
+void UART_SendStr(unsigned char *str){
+	int i = 0;
+	do{
+		HAL_UART_Transmit(&UART_Handle, (unsigned char*)(str + i), 1, 1000);
+	}while(*(str + i++) != '\0');
+}
+
+int fputc(int ch, FILE *f){
+	HAL_UART_Transmit(&UART_Handle, (unsigned char*)&ch, 1, 1000);
+	return (ch);
+}
+
+int fgetc(FILE *f){
+	int ch;
+	HAL_UART_Receive(&UART_Handle, (unsigned char*)&ch ,1, 1000);
+	return (ch);
+}
+```
+
+> 中断函数代码
+```C
+void USART1_IRQHandler(void)
+{
+	char c;
+	if (__HAL_UART_GET_FLAG(&UART_Handle, UART_FLAG_RXNE) == SET){
+		HAL_UART_Receive(&UART_Handle, (unsigned char*)&c, 1, 1000);
+		HAL_UART_Transmit(&UART_Handle, (unsigned char*)&c, 1, 1000);
+		__HAL_UART_CLEAR_FLAG(&UART_Handle, UART_FLAG_RXNE);
+	}
+}
+```
+
