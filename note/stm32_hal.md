@@ -1007,3 +1007,6 @@ void DMA_MTOT_Init(void){
 }
 ```
 
+####  <font color="red"> 11 常见存储器 </font>
+##### 存储器分类
+![Alt text](image-46.png)
