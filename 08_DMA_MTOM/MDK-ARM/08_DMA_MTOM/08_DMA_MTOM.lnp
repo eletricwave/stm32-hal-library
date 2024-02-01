@@ -1,0 +1,26 @@
+--cpu Cortex-M3
+"08_dma_mtom\startup_stm32f103xe.o"
+"08_dma_mtom\bsp_dma_mtom.o"
+"08_dma_mtom\main.o"
+"08_dma_mtom\gpio.o"
+"08_dma_mtom\dma.o"
+"08_dma_mtom\stm32f1xx_it.o"
+"08_dma_mtom\stm32f1xx_hal_msp.o"
+"08_dma_mtom\stm32f1xx_hal_gpio_ex.o"
+"08_dma_mtom\stm32f1xx_hal_tim.o"
+"08_dma_mtom\stm32f1xx_hal_tim_ex.o"
+"08_dma_mtom\stm32f1xx_hal.o"
+"08_dma_mtom\stm32f1xx_hal_rcc.o"
+"08_dma_mtom\stm32f1xx_hal_rcc_ex.o"
+"08_dma_mtom\stm32f1xx_hal_gpio.o"
+"08_dma_mtom\stm32f1xx_hal_dma.o"
+"08_dma_mtom\stm32f1xx_hal_cortex.o"
+"08_dma_mtom\stm32f1xx_hal_pwr.o"
+"08_dma_mtom\stm32f1xx_hal_flash.o"
+"08_dma_mtom\stm32f1xx_hal_flash_ex.o"
+"08_dma_mtom\stm32f1xx_hal_exti.o"
+"08_dma_mtom\system_stm32f1xx.o"
+--library_type=microlib --strict --scatter "08_DMA_MTOM\08_DMA_MTOM.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "08_DMA_MTOM.map" -o 08_DMA_MTOM\08_DMA_MTOM.axf
