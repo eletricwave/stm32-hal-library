@@ -1010,3 +1010,149 @@ void DMA_MTOT_Init(void){
 ####  <font color="red"> 11 常见存储器 </font>
 ##### 存储器分类
 ![Alt text](image-46.png)
+
+####  <font color="red"> 12 IIC读取EEPROM </font>
+##### 1, IIC协议层
+> 1, iic 写
+![Alt text](image-47.png)
+
+> 2, iic 读
+![Alt text](image-48.png)
+
+> 3, iic 读写复合
+![Alt text](image-49.png)
+
+> 4 iic 起始信号和停止信号
+![Alt text](image-50.png)
+
+> 5 iic 数据有效性
+![Alt text](image-51.png)
+
+> 6 iic 地址及其数据方向
+![Alt text](image-52.png)
+
+> 7 iic 响应
+![Alt text](image-53.png)
+
+##### 2, AT23C02 读写时序
+![Alt text](image-54.png)
+
+
+##### 3，代码
+`bsp_iic.h`
+```C
+#ifndef __BSP_IIC_H__
+#define __BSP_IIC_H__
+
+#define IICx                        I2C1
+#define IICx_CLK_ENABLE()           __HAL_RCC_I2C1_CLK_ENABLE()
+#define IICx_SDA_CLK_ENABLE()       __HAL_RCC_GPIOB_CLK_ENABLE()
+#define IICx_SCL_CLK_ENABLE()       __HAL_RCC_GPIOB_CLK_ENABLE()
+
+#define IICx_SDA_PIN                GPIO_PIN_7
+#define IICx_SCL_PIN                GPIO_PIN_6
+
+#define IICx_SDA_PORT               GPIOB
+#define IICx_SCL_PORT               GPIOB
+
+#define I2Cx_FORCE_RESET()           __HAL_RCC_I2C1_FORCE_RESET()
+#define I2Cx_RELEASE_RESET()         __HAL_RCC_I2C1_RELEASE_RESET()
+
+
+void IIC_Init(void);
+
+#endif /* __BSP_IIC_H__ */
+```
+
+`bsp_iic.c`
+```C
+#include "bsp_iic.h"
+#include "stm32f1xx.h"
+
+I2C_HandleTypeDef IIC_Handle;
+
+void IIC_Init(void){
+	IIC_Handle.Instance = IICx;
+	
+	IIC_Handle.Init.ClockSpeed			= 400000;
+	IIC_Handle.Init.DutyCycle			= I2C_DUTYCYCLE_2;
+	IIC_Handle.Init.OwnAddress1     	= 0xcc;
+	IIC_Handle.Init.AddressingMode 		= I2C_ADDRESSINGMODE_7BIT;
+	IIC_Handle.Init.DualAddressMode		= I2C_DUALADDRESS_DISABLE;
+	IIC_Handle.Init.OwnAddress2     	= 0x00; 
+	IIC_Handle.Init.GeneralCallMode		= I2C_GENERALCALL_DISABLE;
+	IIC_Handle.Init.NoStretchMode		= I2C_NOSTRETCH_DISABLE;
+	
+	
+	HAL_I2C_Init(&IIC_Handle);
+}
+
+void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c){
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+	
+	IICx_CLK_ENABLE();
+	IICx_SCL_CLK_ENABLE();
+	IICx_SDA_CLK_ENABLE();
+	
+	GPIO_InitStruct.Pin 	= IICx_SCL_PIN;
+	GPIO_InitStruct.Mode	= GPIO_MODE_AF_OD;
+	GPIO_InitStruct.Pull	= GPIO_NOPULL;
+	GPIO_InitStruct.Speed	= GPIO_SPEED_FREQ_HIGH;
+	
+	HAL_GPIO_Init(IICx_SCL_PORT, &GPIO_InitStruct);
+	
+	GPIO_InitStruct.Pin		= IICx_SDA_PIN;
+	HAL_GPIO_Init(IICx_SDA_PORT, &GPIO_InitStruct);
+	
+    I2Cx_FORCE_RESET();
+    I2Cx_RELEASE_RESET();
+}
+```
+
+`iic_eeprom.h`
+```C
+#ifndef __IIC_EEPROM_H__
+#define __IIC_EEPROM_H__
+
+#include "stm32f1xx.h"
+
+#define EEPROM_PAGE_SIZE        8
+#define EEPROM_PAGE_NUM         256
+#define EEPROM_ADDR             0xa0
+
+void IIC_Write_Byte(uint16_t, uint8_t*);
+HAL_StatusTypeDef  IIC_Read_Byte(uint16_t, uint8_t*);
+
+#endif /* __IIC_EEPROM_H__ */
+```
+
+`iic_eeprom.c`
+```C
+#include "iic_eeprom.h"
+#include "stm32f1xx.h"
+#include "bsp_uart.h"
+
+extern I2C_HandleTypeDef IIC_Handle;
+extern I2C_HandleTypeDef hi2c1;
+
+void IIC_Write_Byte(uint16_t WriteAddr, uint8_t* dat){
+    if (HAL_ERROR ==  HAL_I2C_Mem_Write(&IIC_Handle, EEPROM_ADDR, WriteAddr, I2C_MEMADD_SIZE_8BIT, dat, 1, 1000)){
+		printf("fail to HAL_I2C_Mem_Write in %s and line: %d\r\n", __func__, __LINE__);
+		return;
+	}
+	
+	while (HAL_I2C_GetState(&IIC_Handle) != HAL_I2C_STATE_READY);   // wait for ready status
+	
+	while (HAL_I2C_IsDeviceReady(&IIC_Handle, EEPROM_ADDR, 10, 100) == HAL_TIMEOUT);
+	
+	while (HAL_I2C_GetState(&IIC_Handle) != HAL_I2C_STATE_READY);
+}
+
+HAL_StatusTypeDef  IIC_Read_Byte(uint16_t ReadAddr, uint8_t* buf){
+	if (HAL_ERROR == HAL_I2C_Mem_Read(&IIC_Handle, EEPROM_ADDR, ReadAddr, I2C_MEMADD_SIZE_8BIT, buf, 1, 1000)){
+		printf("fail to HAL_I2C_Mem_Read in %s and line: %d\r\n", __func__, __LINE__);
+		return HAL_ERROR;
+	}
+	return HAL_OK;
+}
+```
