@@ -1156,3 +1156,15 @@ HAL_StatusTypeDef  IIC_Read_Byte(uint16_t ReadAddr, uint8_t* buf){
 	return HAL_OK;
 }
 ```
+
+##### 4, 软件模拟IIC
+> 1, SDA 为什么配置成开漏模式
+
+> GPIO基本框图
+![alt text](image-55.png)
+![alt text](image-56.png)
+
+> - 1. 在开漏模式下控制端口输出为0时 N—mos管道通 GPIO口输出低,  而我们控制端口输出为1时，P-mos 和 N-mos 都不会导通， 输出高阻态， 这样可以把控制权交给从机
+> - 2. 在开漏模式下可以读取GPIO端口的电平， 不用频繁配置GPIO为输入或输出
+
+#### 暂时未解决， 等待修改
