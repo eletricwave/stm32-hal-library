@@ -1168,3 +1168,301 @@ HAL_StatusTypeDef  IIC_Read_Byte(uint16_t ReadAddr, uint8_t* buf){
 > - 2. 在开漏模式下可以读取GPIO端口的电平， 不用频繁配置GPIO为输入或输出
 
 #### 暂时未解决， 等待修改
+
+
+####  <font color="red"> 13 SPI读取串行flash </font>
+##### 1 spi协议层
+> ss片选线
+![alt text](image-57.png)
+> scl线
+![alt text](image-58.png)
+> mosi 主设备输出， 从设备输入 miso 主设备输入， 从设备输出
+![alt text](image-59.png)
+> SPI 通信过程
+![alt text](image-60.png)
+> 通信模式CPHA ,CPOL
+![alt text](image-61.png)
+![alt text](image-62.png)
+
+> QSPI
+![alt text](image-63.png)
+![alt text](image-64.png)
+
+##### 2 cubeMX 配置S
+![alt text](image-65.png)
+
+#### flash 指令
+![alt text](image-66.png)
+![alt text](image-67.png)
+
+#### CODE
+`bsp_flash.c`
+```C
+#include "bsp_flash.h"
+#include "bsp_led.h"
+#include "bsp_uart.h"
+#include <stdio.h>
+
+SPI_HandleTypeDef spiHandle;
+
+void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
+{
+  GPIO_InitTypeDef  GPIO_InitStruct;
+  
+  /*##-1- Enable peripherals and GPIO Clocks #################################*/
+  /* Enable GPIO TX/RX clock */
+  SPIx_SCK_GPIO_CLK_ENABLE();
+  SPIx_MISO_GPIO_CLK_ENABLE();
+  SPIx_MOSI_GPIO_CLK_ENABLE();
+  SPIx_CS_GPIO_CLK_ENABLE();
+  /* Enable SPI clock */
+  SPIx_CLK_ENABLE(); 
+  
+  /*##-2- Configure peripheral GPIO ##########################################*/  
+  /* SPI SCK GPIO pin configuration  */
+  GPIO_InitStruct.Pin       = SPIx_SCK_PIN;
+  GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull      = GPIO_PULLUP;
+  GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
+
+  
+  HAL_GPIO_Init(SPIx_SCK_GPIO_PORT, &GPIO_InitStruct);
+    
+  /* SPI MISO GPIO pin configuration  */
+  GPIO_InitStruct.Pin = SPIx_MISO_PIN;  
+  HAL_GPIO_Init(SPIx_MISO_GPIO_PORT, &GPIO_InitStruct);
+  
+  /* SPI MOSI GPIO pin configuration  */
+  GPIO_InitStruct.Pin = SPIx_MOSI_PIN; 
+  HAL_GPIO_Init(SPIx_MOSI_GPIO_PORT, &GPIO_InitStruct);   
+
+  GPIO_InitStruct.Pin = FLASH_CS_PIN ;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  HAL_GPIO_Init(FLASH_CS_GPIO_PORT, &GPIO_InitStruct); 
+}
+
+void SPI_FLASH_Init(void)
+{
+   /*##-1- Configure the SPI peripheral #######################################*/
+  /* Set the SPI parameters */
+  spiHandle.Instance               = SPIx;
+  spiHandle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
+  spiHandle.Init.Direction         = SPI_DIRECTION_2LINES;
+  spiHandle.Init.CLKPhase          = SPI_PHASE_2EDGE;
+  spiHandle.Init.CLKPolarity       = SPI_POLARITY_HIGH;
+  spiHandle.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
+  spiHandle.Init.CRCPolynomial     = 7;
+  spiHandle.Init.DataSize          = SPI_DATASIZE_8BIT;
+  spiHandle.Init.FirstBit          = SPI_FIRSTBIT_MSB;
+  spiHandle.Init.NSS               = SPI_NSS_SOFT;
+  spiHandle.Init.TIMode            = SPI_TIMODE_DISABLE;
+  
+  spiHandle.Init.Mode = SPI_MODE_MASTER;
+
+  HAL_SPI_Init(&spiHandle); 
+  
+  __HAL_SPI_ENABLE(&spiHandle);     
+}
+
+uint8_t SPI_FLASH_SendReadByte(uint8_t byte)
+{
+	uint8_t rDat;
+	HAL_SPI_TransmitReceive(&spiHandle, &byte, &rDat, 1,1000);
+	
+	return rDat;
+}
+
+void FLASH_Write_Byte(uint8_t byte){
+    HAL_SPI_Transmit(&spiHandle, &byte, 1, 1000);
+}
+
+void FLASH_Read_Byte(uint8_t *byte){
+    HAL_SPI_Receive(&spiHandle, byte, 1, 1000);
+}
+
+uint8_t SPI_FLASH_ReadByte(void){
+  return (SPI_FLASH_SendReadByte(Dummy_Byte));
+}
+
+uint8_t SPI_FLASH_ReadDeviceID(void){
+    uint8_t Temp = 0;
+
+  /* Select the FLASH: Chip Select low */
+    SPI_FLASH_CS_LOW();
+
+  /* Send "RDID " instruction */
+    FLASH_Write_Byte(W25X_DeviceID);
+    // dummy data
+    FLASH_Read_Byte(&Temp);
+    FLASH_Read_Byte(&Temp);
+    FLASH_Read_Byte(&Temp);
+
+    FLASH_Read_Byte(&Temp);
+
+    SPI_FLASH_CS_HIGH();
+
+  return Temp;
+}
+
+uint32_t SPI_FLASH_ReadID(void){
+    uint32_t dat = 0;
+    uint8_t c1, c2, c3;
+    SPI_FLASH_CS_LOW();
+
+    FLASH_Write_Byte(W25X_JEDECID);
+
+    FLASH_Read_Byte(&c1);
+    FLASH_Read_Byte(&c2);
+    FLASH_Read_Byte(&c3);
+
+    SPI_FLASH_CS_HIGH();
+
+    dat = ((uint32_t)c1 << 16) | ((uint32_t)c2 << 8) | c3;
+    return dat;
+}
+
+void SPI_FLASH_WriteEnable(void){
+    SPI_FLASH_CS_LOW();
+    FLASH_Write_Byte(W25X_ENABLE);
+    SPI_FLASH_CS_HIGH();
+}
+
+void SPI_FLASH_WriteDisable(void){
+    SPI_FLASH_CS_LOW();
+    FLASH_Write_Byte(W25X_DISABLE);
+    SPI_FLASH_CS_HIGH();
+}
+
+void SPI_FLASH_WaitForReady(void){
+    uint8_t reg;
+	SPI_FLASH_CS_LOW();
+    do {
+        FLASH_Write_Byte(W25X_STATE);
+        FLASH_Read_Byte(&reg);
+    }while (reg & 0x01);   // 比较最低位的 BUSY 标志
+	SPI_FLASH_CS_HIGH();
+}
+
+void SPI_FLASH_SectorErase(uint32_t addr){
+
+	SPI_FLASH_WriteEnable();
+	
+	SPI_FLASH_CS_LOW();
+	FLASH_Write_Byte(W25X_SECTORERASE);
+	FLASH_Write_Byte((addr >> 16) & 0xff);
+	FLASH_Write_Byte((addr >> 8) & 0xff);
+	FLASH_Write_Byte(addr & 0xff);
+
+	SPI_FLASH_CS_HIGH();
+	SPI_FLASH_WaitForReady();	
+}
+
+void SPI_FLASH_WritePage(uint8_t *dat, uint32_t addr, uint32_t num){
+	
+	if (num > SPI_FLASH_PAGE_NUM) return;
+	
+	SPI_FLASH_WriteEnable();
+	SPI_FLASH_WaitForReady();
+	
+	SPI_FLASH_CS_LOW();
+	
+	FLASH_Write_Byte(W25X_PAGEWRITE);
+	FLASH_Write_Byte((addr >> 16) & 0xff);
+	FLASH_Write_Byte((addr >> 8) & 0xff);
+	FLASH_Write_Byte(addr & 0xff);
+	
+	while (num--){
+		FLASH_Write_Byte(*dat);
+		dat++;
+	}
+	
+	SPI_FLASH_CS_HIGH();
+}
+
+void SPI_FLASH_ReadPage(uint8_t *dat, uint32_t addr, uint32_t num){
+	
+	SPI_FLASH_WriteEnable();
+	SPI_FLASH_WaitForReady();
+	
+	SPI_FLASH_CS_LOW();
+	FLASH_Write_Byte(W25X_RAED);
+	FLASH_Write_Byte((addr >> 16) & 0xff);
+	FLASH_Write_Byte((addr >> 8) & 0xff);
+	FLASH_Write_Byte(addr & 0xff);
+	while (num--){
+		FLASH_Read_Byte(dat);
+		dat++;
+	}
+	SPI_FLASH_CS_HIGH();
+}
+```
+
+`bsp_flash_h`
+```C
+#ifndef __BSP_FLASH_H__
+#define __BSP_FLASH_H__
+
+#include "stm32f1xx.h"
+
+#define SPIx                             SPI1
+#define SPIx_CLK_ENABLE()                __HAL_RCC_SPI1_CLK_ENABLE()
+#define SPIx_SCK_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOA_CLK_ENABLE()
+#define SPIx_MISO_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOA_CLK_ENABLE() 
+#define SPIx_MOSI_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOA_CLK_ENABLE() 
+#define SPIx_CS_GPIO_CLK_ENABLE()        __HAL_RCC_GPIOC_CLK_ENABLE() 
+
+#define SPIx_FORCE_RESET()               __HAL_RCC_SPI1_FORCE_RESET()
+#define SPIx_RELEASE_RESET()             __HAL_RCC_SPI1_RELEASE_RESET()
+
+/* Definition for SPIx Pins */
+#define SPIx_SCK_PIN                     GPIO_PIN_5
+#define SPIx_SCK_GPIO_PORT               GPIOA
+
+#define SPIx_MISO_PIN                    GPIO_PIN_6
+#define SPIx_MISO_GPIO_PORT              GPIOA
+
+#define SPIx_MOSI_PIN                    GPIO_PIN_7
+#define SPIx_MOSI_GPIO_PORT              GPIOA
+
+#define FLASH_CS_PIN                     GPIO_PIN_0              
+#define FLASH_CS_GPIO_PORT               GPIOC  
+
+#define	digitalHi(p,i)			    {p->BSRR=i;}			  //ÉèÖÃÎª¸ßµçÆ½		
+#define digitalLo(p,i)			    {p->BSRR=(uint32_t)i << 16;}				//Êä³öµÍµçÆ½
+#define SPI_FLASH_CS_LOW()      digitalLo(FLASH_CS_GPIO_PORT,FLASH_CS_PIN )
+#define SPI_FLASH_CS_HIGH()     digitalHi(FLASH_CS_GPIO_PORT,FLASH_CS_PIN )
+
+
+#define SPIT_FLAG_TIMEOUT         ((uint32_t)0x1000)
+#define SPIT_LONG_TIMEOUT         ((uint32_t)(10 * SPIT_FLAG_TIMEOUT))
+
+#define W25X_DeviceID			        0xab
+#define W25X_JEDECID                    0x9f
+#define W25X_ENABLE                     0x06
+#define W25X_DISABLE                    0x04
+#define W25X_STATE                      0x05
+#define W25X_SECTORERASE				0x20
+#define W25X_BLOCKERASE					0x52
+#define W25X_PAGEWRITE					0x02
+#define W25X_RAED						0x03
+#define Dummy_Byte                      0xff
+
+#define SPI_FLASH_PAGE_NUM				256
+
+void SPI_FLASH_Init(void);
+uint8_t SPI_FLASH_ReadByte(void);
+uint8_t SPI_FLASH_SendReadByte(uint8_t byte);
+void FLASH_Write_Byte(uint8_t byte);
+void FLASH_Read_Byte(uint8_t *byte);
+
+uint8_t SPI_FLASH_ReadDeviceID(void);
+uint32_t SPI_FLASH_ReadID(void);
+void SPI_FLASH_WriteEnable(void);
+void SPI_FLASH_WriteDisable(void);
+void SPI_FLASH_WaitForReady(void);
+void SPI_FLASH_SectorErase(uint32_t addr);
+void SPI_FLASH_WritePage(uint8_t *dat, uint32_t addr, uint32_t num);
+void SPI_FLASH_ReadPage(uint8_t *dat, uint32_t addr, uint32_t num);
+
+#endif /* __BSP_FLASH_H__ */
+```
