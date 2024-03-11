@@ -89,26 +89,29 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	LED_Init();
 	sysTick_Init();
+	LED_B_OFF;
+	LED_R_OFF;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  
-	  delay_ms(1000);
-	  LED_B_OFF;
-	  delay_ms(1000);
-	  LED_R_OFF;
-	  delay_ms(1000);
-	  LED_G_OFF;
-	  
-	  delay_ms(1000);
-	  LED_B_ON;
-	  delay_ms(1000);
-	  LED_R_ON;
-	  delay_ms(1000);
-	  LED_G_ON;
+		delay_us(1000000);
+		LED_G_TOGGLE;
+//	  delay_ms(1000);
+//	  LED_B_OFF;
+//	  delay_ms(1000);
+//	  LED_R_OFF;
+//	  delay_ms(1000);
+//	  LED_G_OFF;
+//	  
+//	  delay_ms(1000);
+//	  LED_B_ON;
+//	  delay_ms(1000);
+//	  LED_R_ON;
+//	  delay_ms(1000);
+//	  LED_G_ON;
 	  
     /* USER CODE END WHILE */
 

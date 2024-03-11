@@ -560,6 +560,12 @@ void EXTI15_10_IRQHandler(void){
 > 具体频率为
 > ![Alt text](image-39.png)
 
+##### 2， SysTick 相关寄存器
+>![alt text](image-71.png)
+>![alt text](image-72.png)
+>![alt text](image-73.png)
+>![alt text](image-74.png)
+
 > bsp_systick.h
 ``` C
 #ifndef __BSP_SYSTICK_H__
@@ -1165,7 +1171,7 @@ HAL_StatusTypeDef  IIC_Read_Byte(uint16_t ReadAddr, uint8_t* buf){
 ![alt text](image-56.png)
 
 > - 1. 在开漏模式下控制端口输出为0时 N—mos管道通 GPIO口输出低,  而我们控制端口输出为1时，P-mos 和 N-mos 都不会导通， 输出高阻态， 这样可以把控制权交给从机
-> - 2. 在开漏模式下可以读取GPIO端口的电平， 不用频繁配置GPIO为输入或输出
+> - 2. 在开漏  模式下可以读取GPIO端口的电平， 不用频繁配置GPIO为输入或输出
 
 #### 暂时未解决， 等待修改
 
